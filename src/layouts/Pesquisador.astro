@@ -1,0 +1,29 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import FormattedDate from '../components/FormattedDate.astro';
+
+type Props = CollectionEntry<'pesquisadores'>['data'];
+const {
+	name,
+	role,
+	area,
+	ingresso,
+	tags,
+	foto,
+	description,
+	pubDate,
+	updatedDate
+} = Astro.props;
+---
+
+<main>
+	<article>
+		<div class="hero-image">
+			{foto && <Image width={1020} height={510} src={foto} alt="" />}
+		</div>
+		<h1>{name}</h1>
+		<hr />
+		<slot />
+	</article>
+</main>

@@ -1,0 +1,40 @@
+---
+import { SITE_TITLE } from '../consts';
+import HeaderLink from './HeaderLink.astro';
+---
+
+<header>
+	<nav>
+		<h4><a href="/">{SITE_TITLE}</a></h4>
+		<HeaderLink href="/">Inicio</HeaderLink>
+		<HeaderLink href="/sobre">Sobre</HeaderLink>
+		<HeaderLink href="/professores">Professores</HeaderLink>
+		<HeaderLink href="/alunos">Alunos</HeaderLink>
+		<HeaderLink href="/publicações">Publicações</HeaderLink>
+		<HeaderLink href="/contato">Contato</HeaderLink>
+	</nav>
+</header>
+<style>
+	header {
+		margin: 0;
+		background: white;
+	}
+	h4 {
+		border-right: 1px solid black;
+		padding: 0;
+	}
+	nav {
+		display: flex;
+		align-items: center;
+	}
+	nav a {
+		padding: 0.5em 0.5em;
+		color: var(--black);
+		border-bottom: 4px solid transparent;
+		text-decoration: none;
+	}
+	nav a.active {
+		text-decoration: none;
+		border-bottom-color: var(--accent);
+	}
+</style>
