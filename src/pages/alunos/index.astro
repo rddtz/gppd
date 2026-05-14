@@ -11,9 +11,9 @@ const alunos = (await getCollection('pesquisadores'))
 		<section>
 			<ul>
 				{
-					alunos.map(({ id, data }) => (
+					alunos.map(({ slug, data }) => (
 						<li>
-							<a href={`/alunos/${id}/`}>
+							<a href={`/alunos/${slug}/`}>
 								<h4 class="title">{data.nome}</h4>
 								{data.publicationdate &&
 								<p class="date">
