@@ -2,7 +2,8 @@
 import { type CollectionEntry, getCollection, render } from 'astro:content';
 import Pesquisador from '../../layouts/Pesquisador.astro';
 import RootLayout from '../../layouts/RootLayout.astro'
-import {  } from '@orgajs/astro'
+
+const orgFiles = import.meta.glob('/src/content/pesquisadores/*.org');
 
 export async function getStaticPaths() {
 	const alunos = await getCollection('pesquisadores');
@@ -14,11 +15,18 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<'pesquisadores'>;
 
 const aluno = Astro.props;
-const { Content } = await render(aluno);
+let Content: any;
+if (aluno.filePath?.endsWith('.org')) {
+	const mod = await orgFiles[`/${aluno.filePath}`]() as any;
+	Content = mod.default;
+} else {
+	({ Content } = await render(aluno));
+}
 ---
 <RootLayout>
 	<Pesquisador {...aluno.data}>
 		<Content />
 	</Pesquisador>
 	{JSON.stringify(aluno)}
+
 </RootLayout>
