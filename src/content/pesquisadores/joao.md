@@ -1,5 +1,5 @@
 ---
-    name: joao
+    nome: joao
     role: mestrando
     area: hpc
     ingresso: 25/1
@@ -9,8 +9,8 @@
         - CUDA
     foto: 
     description: Pesquiso MPI e CUDA
-    pubDate: August 3 2025
-    updatedDate: 
+    publicationdate: August 3 2025
+    updateddate: 
 ---
 
 

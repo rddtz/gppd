@@ -1,0 +1,14 @@
+#+NOME: carlos
+#+ROLE: doutorando
+#+AREA: hpc
+#+INGRESSO: 23/1
+#+TAGS: Tasks
+#+DESCRIPTION: Pesquiso MPI e CUDA
+#+PUBLICATIONDATE: August 3 2025 
+
+
+* teste
+
+Renderiza não
+
+ignorando o texto aqui

@@ -4,19 +4,21 @@ import FormattedDate from '../../components/FormattedDate.astro';
 import RootLayout from '../../layouts/RootLayout.astro'
 
 const alunos = (await getCollection('pesquisadores'))
+
 ---
 <RootLayout>
 	<main>
 		<section>
 			<ul>
 				{
-					alunos.map((aluno) => (
+					alunos.map(({ id, data }) => (
 						<li>
-							<a href={`/alunos/${aluno.id}/`}>
-								<h4 class="title">{aluno.data.name}</h4>
+							<a href={`/alunos/${id}/`}>
+								<h4 class="title">{data.nome}</h4>
+								{data.publicationdate &&
 								<p class="date">
-									<FormattedDate date={aluno.data.pubDate} />
-								</p>
+									<FormattedDate date={data.publicationdate} />
+								</p>}
 							</a>
 						</li>
 					))

@@ -5,15 +5,15 @@ import FormattedDate from '../components/FormattedDate.astro';
 
 type Props = CollectionEntry<'pesquisadores'>['data'];
 const {
-	name,
+	nome,
 	role,
 	area,
 	ingresso,
 	tags,
 	foto,
 	description,
-	pubDate,
-	updatedDate
+	publicationdate,
+	updateddate
 } = Astro.props;
 ---
 
@@ -22,7 +22,7 @@ const {
 		<div class="hero-image">
 			{foto && <Image width={1020} height={510} src={foto} alt="" />}
 		</div>
-		<h1>{name}</h1>
+		<h1>{nome}</h1>
 		<hr />
 		<slot />
 	</article>
