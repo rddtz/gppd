@@ -8,7 +8,7 @@ const orgFiles = import.meta.glob('/src/content/pesquisadores/*.org');
 export async function getStaticPaths() {
 	const alunos = await getCollection('pesquisadores');
 	return alunos.map((aluno) => ({
-		params: { slug: aluno.id },
+		params: { slug: aluno.slug },
 		props: aluno,
 	}));
 }
