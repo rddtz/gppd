@@ -1,0 +1,161 @@
+---
+import { getCollection } from 'astro:content';
+import RootLayout from '../../layouts/RootLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { GRUPOS_MEMBROS, CARGO_PRIORIDADE } from '../../consts';
+
+const todos = await getCollection('pesquisadores');
+
+function cargoPrio(cargo: string | undefined): number {
+  if (!cargo) return 99;
+  for (const [re, n] of CARGO_PRIORIDADE) if (re.test(cargo)) return n;
+  return 50;
+}
+
+const ordemGrupo = Object.fromEntries(GRUPOS_MEMBROS.map((g, i) => [g, i]));
+
+const membros = [...todos].sort((a, b) => {
+  const ga = ordemGrupo[a.data.grupo ?? 'Estudantes'] ?? 99;
+  const gb = ordemGrupo[b.data.grupo ?? 'Estudantes'] ?? 99;
+  if (ga !== gb) return ga - gb;
+  const ca = cargoPrio(a.data.cargo ?? a.data.role);
+  const cb = cargoPrio(b.data.cargo ?? b.data.role);
+  if (ca !== cb) return ca - cb;
+  return (a.data.nome ?? '').localeCompare(b.data.nome ?? '', 'pt');
+});
+
+// Pre-group so we can render section headers
+const porGrupo = Object.fromEntries(
+  GRUPOS_MEMBROS.map(g => [g, membros.filter(m => (m.data.grupo ?? 'Estudantes') === g)])
+);
+
+const contagens: Record<string, number> = { Todos: membros.length };
+for (const g of GRUPOS_MEMBROS) contagens[g] = porGrupo[g].length;
+
+function iniciais(nome: string) {
+  const p = nome.split(/\s+/).filter(Boolean);
+  return (p[0]?.[0] ?? '') + (p[p.length - 1]?.[0] ?? '');
+}
+
+function truncar(s: string | null | undefined, n: number) {
+  if (!s) return '';
+  return s.length > n ? s.slice(0, n - 1) + '…' : s;
+}
+---
+
+<RootLayout title="Membros">
+  <Breadcrumbs trilha={[
+    { label: 'Início', href: '/' },
+    { label: 'Membros' },
+  ]} />
+
+  <header class="gp-page-head">
+    <span class="gp-kicker">Pessoas</span>
+    <h1>Membros</h1>
+    <p class="gp-lede">
+      Docentes, estudantes, colaboradores e egressos do GPPD.
+      Cada membro tem uma página pessoal com bio, projetos e publicações.
+    </p>
+  </header>
+
+  <!-- Filtros por grupo -->
+  <nav class="gp-filter-bar" role="toolbar" aria-label="Filtrar por grupo">
+    <button class="gp-filter-btn active" data-grupo="">
+      Todos <span class="mono">{contagens['Todos']}</span>
+    </button>
+    {GRUPOS_MEMBROS.map(g => (
+      <button class="gp-filter-btn" data-grupo={g} disabled={contagens[g] === 0 || undefined}>
+        {g} <span class="mono">{contagens[g]}</span>
+      </button>
+    ))}
+  </nav>
+
+  <!-- Tabela de membros agrupada com cabecalhos por secao -->
+  <table class="gp-members-table" id="membros-tabela">
+    <colgroup>
+      <col class="col-name" />
+      <col class="col-role" />
+      <col class="col-since" />
+    </colgroup>
+    <thead>
+      <tr>
+        <th>Nome</th>
+        <th>Cargo</th>
+        <th>Período</th>
+      </tr>
+    </thead>
+    <tbody>
+      {GRUPOS_MEMBROS.map(grupo => {
+        const lista = porGrupo[grupo];
+        if (lista.length === 0) return null;
+        return (
+          <>
+            <!-- Cabecalho de secao (oculto quando filtro especifico ativo) -->
+            <tr class="gp-group-header" data-grupo={grupo}>
+              <td colspan="3">{grupo}</td>
+            </tr>
+            {lista.map(m => {
+              const cargo = m.data.cargo ?? m.data.role ?? '';
+              const pubs  = m.data.publicacoes?.length ?? 0;
+              return (
+                <tr
+                  class="gp-member-row"
+                  data-grupo={grupo}
+                  onclick={`window.location='/pessoas/${m.id}'`}
+                >
+                  <td>
+                    <div class="td-name">
+                      {m.data.foto
+                        ? <img src={m.data.foto} alt={m.data.nome} class="gp-avatar gp-avatar-photo" />
+                        : <div class="gp-avatar">{iniciais(m.data.nome)}</div>
+                      }
+                      <div class="gp-member-info">
+                        <div class="gp-member-name">{m.data.nome}</div>
+                        {m.data.description && (
+                          <div class="gp-member-bio">{m.data.description}</div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="td-role">{cargo}</td>
+                  <td class="td-since">
+                    {m.data.ingresso ?? '—'}
+                    {m.data.saida && <span class="gp-saida"> → {m.data.saida}</span>}
+                  </td>
+                </tr>
+              );
+            })}
+          </>
+        );
+      })}
+    </tbody>
+  </table>
+</RootLayout>
+
+<script>
+const btns    = document.querySelectorAll<HTMLButtonElement>('.gp-filter-btn');
+const linhas  = document.querySelectorAll<HTMLTableRowElement>('.gp-member-row');
+const headers = document.querySelectorAll<HTMLTableRowElement>('.gp-group-header');
+
+function filtrar(grupo: string) {
+  btns.forEach(b => b.classList.toggle('active', b.dataset.grupo === grupo));
+
+  linhas.forEach(row => {
+    row.style.display = (!grupo || row.dataset.grupo === grupo) ? '' : 'none';
+  });
+
+  // Show group header only for the visible group; hide all when showing everyone
+  headers.forEach(h => {
+    h.style.display = (!grupo || h.dataset.grupo === grupo) ? '' : 'none';
+  });
+
+  const url = new URL(window.location.href);
+  if (grupo) url.searchParams.set('grupo', grupo);
+  else url.searchParams.delete('grupo');
+  history.replaceState(null, '', url.toString());
+}
+
+btns.forEach(b => b.addEventListener('click', () => filtrar(b.dataset.grupo ?? '')));
+const inicial = new URLSearchParams(window.location.search).get('grupo') ?? '';
+filtrar(inicial);
+</script>

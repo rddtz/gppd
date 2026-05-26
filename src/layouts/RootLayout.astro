@@ -2,17 +2,37 @@
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  wide?: boolean;  // member pages: wider container so TOC doesn't steal prose space
+}
+
+const {
+  title = SITE_TITLE,
+  description = SITE_DESCRIPTION,
+  wide = false,
+} = Astro.props;
+
+const currentPath = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <!doctype html>
-<html lang="pt-br">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<slot />
-		<Footer />
-	</body>
+<html lang="pt-BR">
+  <head>
+    <BaseHead title={title !== SITE_TITLE ? `${title} — ${SITE_TITLE}` : SITE_TITLE} description={description} />
+  </head>
+  <body>
+    <div class="gp-app">
+      <Header currentPath={currentPath} />
+      <div class="gp-shell">
+        <main class:list={['gp-main', { 'gp-main--wide': wide }]}>
+          <slot />
+        </main>
+      </div>
+      <Footer />
+    </div>
+  </body>
 </html>

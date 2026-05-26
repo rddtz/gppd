@@ -1,29 +1,233 @@
 ---
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
-import FormattedDate from '../components/FormattedDate.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { LINHAS_DE_PESQUISA } from '../consts';
 
-type Props = CollectionEntry<'pesquisadores'>['data'];
+type Props = CollectionEntry<'pesquisadores'>['data'] & { slug: string };
+
 const {
-	nome,
-	role,
-	area,
-	ingresso,
-	tags,
-	foto,
-	description,
-	publicationdate,
-	updateddate
+  slug,
+  nome,
+  cargo,
+  role,
+  grupo = 'Estudantes',
+  foto,
+  linhas = [],
+  ingresso,
+  orientador,
+  lattes,
+  orcid,
+  github,
+  email,
+  homepage,
+  publicacoes = [],
 } = Astro.props;
+
+const cargoExibido = cargo ?? role ?? '';
+
+// Iniciais para avatar
+const iniciais = nome
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((p: string) => p[0])
+  .filter((_: string, i: number, a: string[]) => i === 0 || i === a.length - 1)
+  .join('');
+
+// Linhas de pesquisa do membro (apenas para o infobox e hatnote)
+const linhasDoPesquisador = LINHAS_DE_PESQUISA.filter(l => linhas.includes(l.id));
+
+// URL do grupo
+const grupoHref = `/pessoas?grupo=${encodeURIComponent(grupo)}`;
 ---
 
-<main>
-	<article>
-		<div class="hero-image">
-			{foto && <Image width={1020} height={510} src={foto} alt="" />}
-		</div>
-		<h1>{nome}</h1>
-		<hr />
-		<slot />
-	</article>
-</main>
+<Breadcrumbs trilha={[
+  { label: 'Início', href: '/' },
+  { label: 'Pessoas', href: '/pessoas' },
+  { label: grupo, href: grupoHref },
+  { label: nome },
+]} />
+
+<div class="gp-entry-body">
+
+  <!-- Titulo: linha acima de toc + prose, abaixo do infobox -->
+  <h1 class="gp-entry-title">{nome}</h1>
+
+  <!-- TOC: coluna esquerda, gerada por JS -->
+  <nav class="gp-toc" id="gp-toc" aria-label="Conteúdo" style="display:none"></nav>
+
+  <!-- Conteudo central -->
+  <div class="gp-prose">
+    <slot />
+
+  </div>
+
+  <!-- Infobox: coluna direita -->
+  <aside class="gp-infobox">
+    <div class="gp-infobox-title">
+      {nome}
+      <span class="gp-infobox-role">{cargoExibido}</span>
+    </div>
+
+    <div class="gp-infobox-photo">
+      {foto
+        ? <img src={foto} alt={`Foto de ${nome}`} style="width:100%;max-height:220px;object-fit:cover;" />
+        : <div class="gp-avatar-lg">{iniciais}</div>
+      }
+    </div>
+
+    <div class="gp-infobox-section">Posição</div>
+    <div class="gp-infobox-row">
+      <span class="gp-infobox-label">Cargo</span>
+      <span class="gp-infobox-value">{cargoExibido}</span>
+    </div>
+    <div class="gp-infobox-row">
+      <span class="gp-infobox-label">Grupo</span>
+      <span class="gp-infobox-value"><a href={grupoHref}>{grupo}</a></span>
+    </div>
+    {ingresso && (
+      <div class="gp-infobox-row">
+        <span class="gp-infobox-label">No GPPD desde</span>
+        <span class="gp-infobox-value mono">{ingresso}</span>
+      </div>
+    )}
+    {orientador && (
+      <div class="gp-infobox-row">
+        <span class="gp-infobox-label">Orientador</span>
+        <span class="gp-infobox-value">{orientador}</span>
+      </div>
+    )}
+
+    {linhasDoPesquisador.length > 0 && (
+      <>
+        <div class="gp-infobox-section">Pesquisa</div>
+        <div class="gp-infobox-row">
+          <span class="gp-infobox-label">Linhas</span>
+          <span class="gp-infobox-value">
+            {linhasDoPesquisador.map((l, i) => (
+              <>
+                {i > 0 && ', '}
+                <a href={`/linhas/${l.id}`}>{l.nome}</a>
+              </>
+            ))}
+          </span>
+        </div>
+      </>
+    )}
+
+    {(email || lattes || orcid || github || homepage) && (
+      <>
+        <div class="gp-infobox-section">Contato</div>
+        {email && (
+          <div class="gp-infobox-row">
+            <span class="gp-infobox-label">Email</span>
+            <span class="gp-infobox-value">
+              <a href={`mailto:${email}`}>{email}</a>
+            </span>
+          </div>
+        )}
+        {lattes && (
+          <div class="gp-infobox-row">
+            <span class="gp-infobox-label">Lattes</span>
+            <span class="gp-infobox-value">
+              <a href={lattes.startsWith('http') ? lattes : `http://lattes.cnpq.br/${lattes}`} target="_blank" rel="noopener">
+                lattes &#8599;
+              </a>
+            </span>
+          </div>
+        )}
+        {orcid && (
+          <div class="gp-infobox-row">
+            <span class="gp-infobox-label">ORCID</span>
+            <span class="gp-infobox-value">
+              <a href={`https://orcid.org/${orcid}`} target="_blank" rel="noopener">
+                {orcid} &#8599;
+              </a>
+            </span>
+          </div>
+        )}
+        {github && (
+          <div class="gp-infobox-row">
+            <span class="gp-infobox-label">GitHub</span>
+            <span class="gp-infobox-value">
+              <a href={`https://github.com/${github}`} target="_blank" rel="noopener">
+                @{github} &#8599;
+              </a>
+            </span>
+          </div>
+        )}
+        {homepage && (
+          <div class="gp-infobox-row">
+            <span class="gp-infobox-label">Homepage</span>
+            <span class="gp-infobox-value">
+              <a href={homepage} target="_blank" rel="noopener">link &#8599;</a>
+            </span>
+          </div>
+        )}
+      </>
+    )}
+  </aside>
+
+</div><!-- gp-entry-body -->
+
+<script>
+// Gera o TOC dinamicamente a partir dos headings reais do arquivo
+// (funciona com markdown e org-mode sem depender de IDs predefinidos)
+(function buildTOC() {
+  const prose = document.querySelector<HTMLElement>('.gp-prose');
+  const toc   = document.getElementById('gp-toc');
+  if (!prose || !toc) return;
+
+  // Coleta h2 e h3 dentro da prosa, mas exclui o h2 de Contato
+  const headings = Array.from(
+    prose.querySelectorAll<HTMLHeadingElement>('h2, h3')
+  ).filter(h => h.closest('#contato') === null);
+
+  if (headings.length < 1) return; // nao mostra TOC vazio
+
+  // Garante que cada heading tem um id navegavel
+  const usedIds = new Set<string>();
+  headings.forEach((h, i) => {
+    if (!h.id) {
+      let base = (h.textContent ?? '')
+        .trim()
+        .toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') || `secao-${i}`;
+      let id = base;
+      let n  = 1;
+      while (usedIds.has(id)) id = `${base}-${n++}`;
+      usedIds.add(id);
+      h.id = id;
+    } else {
+      usedIds.add(h.id);
+    }
+  });
+
+  // Monta o HTML do TOC
+  const listItems = headings.map(h => {
+    const indent = h.tagName === 'H3' ? ' style="padding-left:12px;font-size:11.5px"' : '';
+    return `<li${indent}><a href="#${h.id}">${h.textContent?.trim() ?? ''}</a></li>`;
+  }).join('');
+
+  toc.innerHTML = `
+    <div class="gp-toc-head">
+      <span class="gp-toc-title">Conteúdo</span>
+      <button class="gp-toc-toggle" id="toc-toggle">[ocultar]</button>
+    </div>
+    <ol id="toc-list">${listItems}</ol>
+  `;
+  toc.style.display = '';
+
+  // Toggle mostrar/ocultar
+  const toggle = document.getElementById('toc-toggle');
+  const list   = document.getElementById('toc-list');
+  if (toggle && list) {
+    toggle.addEventListener('click', () => {
+      const hidden = list.style.display === 'none';
+      list.style.display = hidden ? '' : 'none';
+      toggle.textContent  = hidden ? '[ocultar]' : '[mostrar]';
+    });
+  }
+})();
+</script>

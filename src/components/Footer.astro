@@ -1,12 +1,15 @@
 ---
-const today = new Date();
+import { SITE_TITLE_LONG, SITE_FOUNDED, SITE_URL } from '../consts';
+const year = new Date().getFullYear();
 ---
 
-<footer>
-	Footer
+<footer class="gp-footer">
+  <span>
+    &copy; {SITE_FOUNDED}&ndash;{year} {SITE_TITLE_LONG} &mdash; Instituto de Informática, UFRGS
+  </span>
+  <span>
+    <a href={SITE_URL} target="_blank" rel="noopener">Site oficial</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/contato">Contato</a>
+  </span>
 </footer>
-<style>
-	footer {
-		color: rgb(var(--gray));
-	}
-</style>

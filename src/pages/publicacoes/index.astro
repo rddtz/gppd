@@ -1,0 +1,179 @@
+---
+import { getCollection } from 'astro:content';
+import RootLayout from '../../layouts/RootLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+
+// Agrega todas as publicacoes de todos os membros
+const membros = await getCollection('pesquisadores');
+
+const todasPubs = membros.flatMap(m =>
+  (m.data.publicacoes ?? []).map(p => ({
+    ...p,
+    // slug do autor para linkar o perfil
+    autorSlug: m.id,
+    autorNome: m.data.nome,
+  }))
+);
+
+// Ordena por ano descendente
+todasPubs.sort((a, b) => b.ano - a.ano);
+
+// Agrupa por ano
+const porAno: Record<number, typeof todasPubs> = {};
+for (const p of todasPubs) {
+  (porAno[p.ano] ??= []).push(p);
+}
+const anos = Object.keys(porAno).map(Number).sort((a, b) => b - a);
+---
+
+<RootLayout title="Publicações">
+  <Breadcrumbs trilha={[
+    { label: 'Início', href: '/' },
+    { label: 'Publicações' },
+  ]} />
+
+  <header class="gp-page-head">
+    <span class="gp-kicker">Produção científica</span>
+    <h1>Publicações</h1>
+    <p class="gp-lede">
+      Trabalhos revisados por pares produzidos por membros do GPPD em periódicos
+      e conferências internacionais.
+    </p>
+  </header>
+
+  {todasPubs.length === 0 ? (
+    <div class="gp-empty">
+      <p>Nenhuma publicação cadastrada ainda.</p>
+      <p style="font-size:13px;color:var(--gp-ink-mute);">
+        Adicione publicações ao seu perfil em <code>publicacoes:</code> no frontmatter do seu arquivo.
+      </p>
+    </div>
+  ) : (
+    <>
+      <!-- Toolbar de filtro (JS) -->
+      <div class="gp-pub-toolbar">
+        <label class="gp-search" style="min-width:320px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+            <circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.3"/>
+            <line x1="9.5" y1="9.5" x2="12.5" y2="12.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <input type="search" id="pub-busca" placeholder="Buscar título, autor ou veículo…" />
+        </label>
+
+        <div class="gp-filter">
+          <span class="gp-filter-label">Tipo</span>
+          <select id="pub-tipo">
+            <option value="">Todos</option>
+            <option value="journal">Periódico</option>
+            <option value="conference">Conferência</option>
+            <option value="workshop">Workshop</option>
+            <option value="thesis">Tese/Dissertação</option>
+            <option value="preprint">Preprint</option>
+          </select>
+        </div>
+
+        <div class="gp-filter">
+          <span class="gp-filter-label">Ano</span>
+          <select id="pub-ano">
+            <option value="">Todos</option>
+            {anos.map(a => <option value={a}>{a}</option>)}
+          </select>
+        </div>
+
+        <span class="gp-pub-count mono" id="pub-contagem">{todasPubs.length} resultados</span>
+      </div>
+
+      <!-- Lista por ano -->
+      <section class="gp-pub-stream" id="pub-stream">
+        {anos.map(ano => (
+          <div class="gp-pub-year" data-ano={ano}>
+            <div class="gp-pub-year-head">
+              <h2 class="gp-pub-year-num">{ano}</h2>
+              <div class="gp-pub-year-rule"></div>
+              <div class="gp-pub-year-count mono">{porAno[ano].length} publicações</div>
+            </div>
+            <ol class="gp-pub-list">
+              {porAno[ano].map((p, i) => (
+                <li class="gp-pub-item"
+                  data-titulo={p.titulo.toLowerCase()}
+                  data-venue={p.venue.toLowerCase()}
+                  data-autores={p.autores.join(' ').toLowerCase()}
+                  data-tipo={p.tipo}
+                >
+                  <div class="gp-pub-num mono">[{i + 1}]</div>
+                  <div class="gp-pub-body">
+                    <div class="gp-pub-title">
+                      {p.doi
+                        ? <a href={`https://doi.org/${p.doi}`} target="_blank" rel="noopener">{p.titulo}</a>
+                        : p.url
+                        ? <a href={p.url} target="_blank" rel="noopener">{p.titulo}</a>
+                        : p.titulo
+                      }
+                    </div>
+                    <div class="gp-pub-venue">
+                      <em>{p.venue}</em>
+                      {' · '}
+                      <span class="mono">{p.ano}</span>
+                    </div>
+                    <div class="gp-pub-authors">
+                      {p.autores.map((a, j) => (
+                        <>
+                          {j > 0 && <span class="sep"> · </span>}
+                          {a === p.autorNome
+                            ? <a href={`/pessoas/${p.autorSlug}`}>{a}</a>
+                            : <span>{a}</span>
+                          }
+                        </>
+                      ))}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </section>
+    </>
+  )}
+</RootLayout>
+
+<script>
+const busca    = document.getElementById('pub-busca')   as HTMLInputElement | null;
+const tipoSel  = document.getElementById('pub-tipo')    as HTMLSelectElement | null;
+const anoSel   = document.getElementById('pub-ano')     as HTMLSelectElement | null;
+const contagem = document.getElementById('pub-contagem');
+
+function filtrar() {
+  const q    = busca?.value.toLowerCase() ?? '';
+  const tipo = tipoSel?.value ?? '';
+  const ano  = anoSel?.value ?? '';
+  let total  = 0;
+
+  document.querySelectorAll<HTMLElement>('.gp-pub-item').forEach(item => {
+    const matchBusca = !q || (
+      (item.dataset.titulo  ?? '').includes(q) ||
+      (item.dataset.venue   ?? '').includes(q) ||
+      (item.dataset.autores ?? '').includes(q)
+    );
+    const matchTipo = !tipo || item.dataset.tipo === tipo;
+    const visible   = matchBusca && matchTipo;
+    item.style.display = visible ? '' : 'none';
+    if (visible) total++;
+  });
+
+  // Oculta anos sem itens visiveis
+  document.querySelectorAll<HTMLElement>('.gp-pub-year').forEach(bloco => {
+    const blocoAno = bloco.dataset.ano ?? '';
+    const matchAno = !ano || blocoAno === ano;
+    const temItens = matchAno && bloco.querySelectorAll('.gp-pub-item:not([style*="none"])').length > 0;
+    bloco.style.display = (matchAno && temItens) || (!q && !tipo && !ano) ? '' : 'none';
+    if (!matchAno) bloco.style.display = 'none';
+  });
+
+  if (contagem) contagem.textContent = `${total} resultados`;
+}
+
+busca?.addEventListener('input', filtrar);
+tipoSel?.addEventListener('change', filtrar);
+anoSel?.addEventListener('change', filtrar);
+</script>

@@ -1,40 +1,193 @@
 ---
 import { SITE_TITLE } from '../consts';
-import HeaderLink from './HeaderLink.astro';
+
+const { currentPath = '/' } = Astro.props;
+
+const navActive = (prefix: string) =>
+  prefix === '/'
+    ? currentPath === '/'
+    : currentPath.startsWith(prefix);
 ---
 
-<header>
-	<nav>
-		<h4><a href="/">{SITE_TITLE}</a></h4>
-		<HeaderLink href="/">Inicio</HeaderLink>
-		<HeaderLink href="/sobre">Sobre</HeaderLink>
-		<HeaderLink href="/professores">Professores</HeaderLink>
-		<HeaderLink href="/alunos">Alunos</HeaderLink>
-		<HeaderLink href="/publicações">Publicações</HeaderLink>
-		<HeaderLink href="/contato">Contato</HeaderLink>
-	</nav>
+<header class="gp-header">
+  <div class="gp-header-bar">
+    <!-- Marca -->
+    <a class="gp-brand" href="/">
+      <span class="gp-brand-name">{SITE_TITLE}</span>
+      <span class="gp-brand-sub">Wiki</span>
+    </a>
+
+    <!-- Navegacao principal -->
+    <nav class="gp-header-nav" aria-label="Navegação principal">
+      <a href="/"            class:list={[{ active: navActive('/') }]}>Início</a>
+      <span class="navdivider" aria-hidden="true">|</span>
+      <a href="/pessoas"     class:list={[{ active: navActive('/pessoas') }]}>Membros</a>
+      <span class="navdivider" aria-hidden="true">|</span>
+      <a href="/publicacoes" class:list={[{ active: navActive('/publicacoes') }]}>Publicações</a>
+      <span class="navdivider" aria-hidden="true">|</span>
+      <a href="/sobre"       class:list={[{ active: navActive('/sobre') }]}>Sobre</a>
+      <span class="navdivider" aria-hidden="true">|</span>
+      <a href="https://pcad.inf.ufrgs.br/" target="_blank" rel="noopener">
+        Infraestrutura&#8599;
+      </a>
+      <span class="navdivider" aria-hidden="true">|</span>
+      <a href="/contato"     class:list={[{ active: navActive('/contato') }]}>Contato</a>
+    </nav>
+
+    <!-- Lado direito: botao de tema + busca -->
+    <div class="gp-header-right">
+      <button class="gp-theme-btn" id="gp-theme-btn" aria-label="Alternar tema" title="Alternar tema">
+        <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+
+      <!-- Busca com dropdown de resultados -->
+      <div class="gp-search-wrap" id="gp-search-wrap">
+      <label class="gp-search" aria-label="Buscar no wiki">
+        <svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true">
+          <circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-width="1.4"/>
+          <line x1="9.5" y1="9.5" x2="12.5" y2="12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="square"/>
+        </svg>
+        <input
+          type="search"
+          placeholder="Buscar…"
+          id="gp-search-input"
+          autocomplete="off"
+          aria-autocomplete="list"
+          aria-controls="gp-search-results"
+          aria-expanded="false"
+        />
+        <kbd>/</kbd>
+      </label>
+      <ul class="gp-search-results" id="gp-search-results" role="listbox" aria-label="Resultados da busca"></ul>
+    </div><!-- gp-search-wrap -->
+    </div><!-- gp-header-right -->
+  </div><!-- gp-header-bar -->
 </header>
-<style>
-	header {
-		margin: 0;
-		background: white;
-	}
-	h4 {
-		border-right: 1px solid black;
-		padding: 0;
-	}
-	nav {
-		display: flex;
-		align-items: center;
-	}
-	nav a {
-		padding: 0.5em 0.5em;
-		color: var(--black);
-		border-bottom: 4px solid transparent;
-		text-decoration: none;
-	}
-	nav a.active {
-		text-decoration: none;
-		border-bottom-color: var(--accent);
-	}
-</style>
+
+<script>
+// --- Toggle dark/light theme -----------------------------------------
+(function () {
+  const btn  = document.getElementById('gp-theme-btn');
+  const html = document.documentElement;
+
+  function isDark() { return html.getAttribute('data-theme') === 'dark'; }
+
+  function apply(dark: boolean) {
+    if (dark) html.setAttribute('data-theme', 'dark');
+    else      html.removeAttribute('data-theme');
+    try { localStorage.setItem('gp-theme', dark ? 'dark' : 'light'); } catch(e) {}
+  }
+
+  btn?.addEventListener('click', () => apply(!isDark()));
+})();
+
+// --- Atalho "/" foca a busca -----------------------------------------
+document.addEventListener('keydown', (e) => {
+  if (e.key === '/' && (document.activeElement as HTMLElement)?.tagName !== 'INPUT') {
+    e.preventDefault();
+    (document.getElementById('gp-search-input') as HTMLInputElement)?.focus();
+  }
+  if (e.key === 'Escape') fechar();
+});
+
+// --- Estado -----------------------------------------------------------
+let indice: {tipo:string; nome:string; cargo:string; grupo:string; bio:string; linhas:string; url:string}[] = [];
+let carregado = false;
+
+const input    = document.getElementById('gp-search-input') as HTMLInputElement;
+const lista    = document.getElementById('gp-search-results') as HTMLUListElement;
+const wrap     = document.getElementById('gp-search-wrap') as HTMLDivElement;
+
+// --- Carrega o indice apenas uma vez, no primeiro keystroke ----------
+async function garantirIndice() {
+  if (carregado) return;
+  carregado = true;
+  try {
+    const r = await fetch('/pesquisa.json');
+    indice = await r.json();
+  } catch { indice = []; }
+}
+
+// --- Normaliza texto para comparacao sem acentos ---------------------
+function norm(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+// --- Renderiza resultados --------------------------------------------
+function mostrar(resultados: typeof indice) {
+  if (resultados.length === 0) {
+    lista.innerHTML = '<li class="gp-sr-empty">Nenhum resultado encontrado</li>';
+  } else {
+    lista.innerHTML = resultados.slice(0, 8).map(r => `
+      <li class="gp-sr-item" role="option">
+        <a href="${r.url}" class="gp-sr-link">
+          <span class="gp-sr-nome">${r.nome}</span>
+          <span class="gp-sr-detalhe">${[r.cargo, r.grupo].filter(Boolean).join(' · ')}</span>
+        </a>
+      </li>
+    `).join('');
+  }
+  lista.style.display = 'block';
+  input.setAttribute('aria-expanded', 'true');
+}
+
+function fechar() {
+  lista.style.display = 'none';
+  input.setAttribute('aria-expanded', 'false');
+}
+
+// --- Eventos no input ------------------------------------------------
+input.addEventListener('input', async () => {
+  const q = input.value.trim();
+  if (q.length < 2) { fechar(); return; }
+
+  await garantirIndice();
+
+  const qn = norm(q);
+  const res = indice.filter(r =>
+    norm(r.nome).includes(qn) ||
+    norm(r.cargo).includes(qn) ||
+    norm(r.bio).includes(qn) ||
+    norm(r.linhas).includes(qn) ||
+    norm(r.grupo).includes(qn)
+  );
+  mostrar(res);
+});
+
+// --- Navega com Enter ------------------------------------------------
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const primeiro = lista.querySelector<HTMLAnchorElement>('.gp-sr-link');
+    if (primeiro) { window.location.href = primeiro.href; }
+    else {
+      const q = encodeURIComponent(input.value.trim());
+      if (q) window.location.href = `/pessoas?busca=${q}`;
+    }
+    fechar();
+  }
+  // Navega com setas
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    (lista.querySelector('.gp-sr-link') as HTMLElement)?.focus();
+  }
+});
+
+// --- Fecha ao clicar fora --------------------------------------------
+document.addEventListener('click', (e) => {
+  if (!wrap.contains(e.target as Node)) fechar();
+});
+
+// --- Fecha ao sair do wrap com Tab -----------------------------------
+wrap.addEventListener('focusout', (e) => {
+  if (!wrap.contains((e as FocusEvent).relatedTarget as Node)) fechar();
+});
+</script>

@@ -1,0 +1,41 @@
+---
+import { type CollectionEntry, getCollection } from 'astro:content';
+import Pesquisador from '../../layouts/Pesquisador.astro';
+import RootLayout from '../../layouts/RootLayout.astro';
+
+// render() nao funciona com o loader customizado para nenhum tipo de arquivo
+// (nem .md nem .org). Usamos import.meta.glob para ambos os formatos:
+// - .md  -> processado pelo pipeline de markdown do Astro via Vite
+// - .org -> processado pelo @orgajs via Vite
+const allFiles = import.meta.glob('/src/content/pesquisadores/*.(md|org)');
+
+export async function getStaticPaths() {
+  const membros = await getCollection('pesquisadores');
+  return membros.map(m => ({
+    params: { slug: m.id },
+    props: m,
+  }));
+}
+
+type Props = CollectionEntry<'pesquisadores'>;
+
+const membro = Astro.props;
+
+// Monta a chave do glob a partir do filePath armazenado pelo loader
+const fileKey = membro.filePath
+  ? (membro.filePath.startsWith('/') ? membro.filePath : `/${membro.filePath}`)
+  : null;
+
+let Content: any = () => null;
+
+if (fileKey && allFiles[fileKey]) {
+  const mod = await allFiles[fileKey]() as any;
+  Content = mod.default ?? (() => null);
+}
+---
+
+<RootLayout title={membro.data.nome} wide={true}>
+  <Pesquisador slug={membro.id} {...membro.data}>
+    <Content />
+  </Pesquisador>
+</RootLayout>

@@ -1,0 +1,50 @@
+#+NOME: Lucas Mello Schnorr
+#+CARGO: Professor Associado
+#+GRUPO: Docentes
+#+INGRESSO: 2010
+#+LINHAS: hpc perf
+#+EMAIL: schnorr@inf.ufrgs.br
+#+GITHUB: schnorr
+#+LATTES: http://lattes.cnpq.br/0412577035083946
+#+HOMEPAGE: https://www.inf.ufrgs.br/~schnorr/
+#+FOTO: /schnorr.png
+#+DESCRIPTION: Pesquisa desempenho de sistemas paralelos e distribuídos, com foco em análise de rastros, simulação e computação energeticamente eficiente.
+
+Lucas Mello Schnorr é Professor Associado do Instituto de Informática da
+UFRGS e membro permanente do Programa de Pós-Graduação em Computação (PPGC).
+Obteve o título de Doutor em 2009 em cotutela entre a UFRGS e o Institut
+Polytechnique de Grenoble, França. Realizou estágio pós-doutoral na Inria
+Grenoble Rhônes-Alpes (2016–2017) sob supervisão de Arnaud Legrand, com
+apoio do projeto europeu HPC4E. Atuou também como pesquisador no CNRS França,
+no laboratório MESCAL.
+
+Lidera o GPPD — Grupo de Pesquisa em Programação Distribuída — e orienta
+estudantes de graduação, mestrado e doutorado em temas de HPC e análise de
+desempenho.
+
+** Atuação docente
+
+No programa de pós-graduação ministra a disciplina de *Computação Paralela*.
+Na graduação é responsável pelas disciplinas de *Compiladores* e *Paradigmas
+de Linguagens de Programação*.
+
+** Interesses de pesquisa
+
+Sua pesquisa concentra-se em desempenho de sistemas paralelos e distribuídos:
+
+- Análise de desempenho de aplicações paralelas de longa duração
+- Compressão e amostragem de rastros de execução (tracing)
+- Simulação de sistemas de computação de alto desempenho (SimGrid, StarPU)
+- Computação energeticamente eficiente em GPUs e clusters heterogêneos
+
+** Publicações selecionadas
+
+#+PUB: titulo="Performance Analysis of MPI Applications Using Execution Traces" venue="Euro-Par 2018" ano=2018 tipo=conference autores="Lucas Mello Schnorr, Arnaud Legrand" doi="10.1007/978-3-319-96983-1_27"
+
+#+PUB: titulo="A Scalable Approach to Trace Compression for Long-Running HPC Applications" venue="IEEE IPDPS 2020" ano=2020 tipo=conference autores="Lucas Mello Schnorr, Vinícius Garcia Pinto" doi="10.1109/IPDPS47924.2020.00052"
+
+#+PUB: titulo="StarVZ: A Performance Analysis Workflow for Task-Based Applications" venue="Parallel Computing" ano=2021 tipo=journal autores="Lucas Mello Schnorr, Vinícius Garcia Pinto, Luka Stanisic" doi="10.1016/j.parco.2021.102835"
+
+#+PUB: titulo="Estratégias de amostragem de rastros para aplicações HPC de longa duração" venue="Workshop de Iniciação Científica — ERAD/RS 2025" ano=2025 tipo=workshop autores="João Silva, Lucas Mello Schnorr"
+
+** Alunos

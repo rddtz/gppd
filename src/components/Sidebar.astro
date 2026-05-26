@@ -1,0 +1,76 @@
+---
+import { LINHAS_DE_PESQUISA } from '../consts';
+const { currentPath = '/' } = Astro.props;
+
+const active = (href: string) =>
+  href === '/'
+    ? currentPath === '/'
+    : currentPath.startsWith(href);
+---
+
+<aside class="gp-sidebar" aria-label="Sub-navegação">
+  <nav class="gp-side-nav">
+
+    <div class="gp-side-sect">
+      <div class="gp-side-sect-title">Pesquisa</div>
+      <ul>
+        <li>
+          <a href="/publicacoes"
+            class:list={['gp-side-link', { active: active('/publicacoes') }]}>
+            Publicações
+          </a>
+        </li>
+        <ul class="gp-side-tree">
+          {LINHAS_DE_PESQUISA.map(l => (
+            <li>
+              <a
+                href={`/linhas/${l.id}`}
+                class:list={['gp-side-link', 'small', { active: active(`/linhas/${l.id}`) }]}
+              >
+                {l.nome}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </ul>
+    </div>
+
+    <div class="gp-side-sect">
+      <div class="gp-side-sect-title">Pessoas</div>
+      <ul>
+        <li>
+          <a href="/pessoas"
+            class:list={['gp-side-link', { active: currentPath === '/pessoas' }]}>
+            Todos os membros
+          </a>
+        </li>
+        <li><a href="/pessoas?grupo=Docentes"     class="gp-side-link small">Docentes</a></li>
+        <li><a href="/pessoas?grupo=Estudantes"   class="gp-side-link small">Estudantes</a></li>
+        <li><a href="/pessoas?grupo=Colaboradores" class="gp-side-link small">Colaboradores</a></li>
+        <li><a href="/pessoas?grupo=Egressos"     class="gp-side-link small">Egressos</a></li>
+      </ul>
+    </div>
+
+    <div class="gp-side-sect">
+      <div class="gp-side-sect-title">Externo</div>
+      <ul>
+        <li>
+          <a href="https://www.inf.ufrgs.br/" class="gp-side-link" target="_blank" rel="noopener">
+            Inst. de Informática <span class="gp-ext-icon">&#8599;</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://www.ufrgs.br/" class="gp-side-link" target="_blank" rel="noopener">
+            UFRGS <span class="gp-ext-icon">&#8599;</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://pcad.inf.ufrgs.br/" class="gp-side-link" target="_blank" rel="noopener">
+            PCAD <span class="gp-ext-icon">&#8599;</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+  </nav>
+</aside>

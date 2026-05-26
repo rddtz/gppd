@@ -1,14 +1,20 @@
-#+NOME: carlos
-#+ROLE: doutorando
-#+AREA: hpc
-#+INGRESSO: 23/1
-#+TAGS: Tasks
-#+DESCRIPTION: Pesquiso MPI e CUDA
-#+PUBLICATIONDATE: August 3 2025 
+#+NOME: Carlos Souza
+#+CARGO: Doutorando
+#+GRUPO: Estudantes
+#+INGRESSO: 2023
+#+LINHAS: hpc energia
+#+EMAIL: carlos.souza@inf.ufrgs.br
+#+GITHUB: carlossouza
+#+FOTO: /carlos.jpg
+#+DESCRIPTION: Pesquiso estratégias de escalonamento energeticamente eficientes para cargas irregulares em GPU.
 
+Carlos Souza é doutorando do GPPD no Instituto de Informática da UFRGS.
+Sua pesquisa foca em estratégias DVFS (Dynamic Voltage and Frequency Scaling)
+para cargas de trabalho irregulares em GPUs, buscando equilíbrio entre
+desempenho e consumo energético.
 
-* teste
+Faz parte do grupo desde *2023*.
 
-Renderiza não
+** Publicações
 
-ignorando o texto aqui
+#+PUB: titulo="Energy-Efficient Scheduling for Irregular GPU Workloads" venue="ERAD/RS 2024" ano=2024 tipo=conference autores="Carlos Souza, Matheus Serpa"

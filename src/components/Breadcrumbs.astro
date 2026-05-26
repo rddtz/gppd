@@ -1,0 +1,24 @@
+---
+export interface Migracao {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  trilha: Migracao[];
+}
+
+const { trilha } = Astro.props;
+---
+
+<nav class="gp-breadcrumbs" aria-label="Localização">
+  {trilha.map((item, i) => (
+    <>
+      {item.href
+        ? <a href={item.href} class="gp-crumb">{item.label}</a>
+        : <span class="gp-crumb current" aria-current="page">{item.label}</span>
+      }
+      {i < trilha.length - 1 && <span class="gp-crumb-sep">/</span>}
+    </>
+  ))}
+</nav>

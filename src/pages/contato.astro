@@ -1,10 +1,44 @@
 ---
-import RootLayout from '../layouts/RootLayout.astro'
+import RootLayout from '../layouts/RootLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
 ---
 
-<RootLayout>
-	<main>
-		<h1>Contato</h1>
-		<p>Contatos do GPPD, contatos do site, pode ser parcialmente gerado, parcialmente préfeito</p>
-	</main>
+<RootLayout title="Contato">
+  <Breadcrumbs trilha={[
+    { label: 'Início', href: '/' },
+    { label: 'Contato' },
+  ]} />
+
+  <header class="gp-page-head">
+    <span class="gp-kicker">Contato</span>
+    <h1>Fale conosco</h1>
+    <p class="gp-lede">
+      Para contatos gerais com o grupo, utilize os canais abaixo.
+      Para falar com um membro específico, acesse a <a href="/pessoas">página de membros</a>.
+    </p>
+  </header>
+
+  <div style="max-width:60ch;">
+    <section class="gp-section">
+      <div class="gp-section-row"><h2>Endereço</h2></div>
+      <div class="gp-section-body">
+        <ul style="list-style:none;padding:0;font-size:14px;line-height:2;">
+          <li>Instituto de Informática — UFRGS</li>
+          <li>Av. Bento Gonçalves, 9500 — Agronomia</li>
+          <li>Porto Alegre, RS — Brasil — CEP 91501-970</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="gp-section">
+      <div class="gp-section-row"><h2>Links úteis</h2></div>
+      <div class="gp-section-body">
+        <ul style="font-size:14px;line-height:2.2;">
+          <li><a href="https://www.inf.ufrgs.br/" target="_blank" rel="noopener">Instituto de Informática &#8599;</a></li>
+          <li><a href="https://www.ufrgs.br/" target="_blank" rel="noopener">UFRGS &#8599;</a></li>
+          <li><a href="https://www.inf.ufrgs.br/gppd/site/" target="_blank" rel="noopener">Site antigo do GPPD &#8599;</a></li>
+        </ul>
+      </div>
+    </section>
+  </div>
 </RootLayout>

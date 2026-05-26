@@ -1,0 +1,19 @@
+#+NOME: Matheus Serpa
+#+CARGO: Doutor
+#+GRUPO: Egressos
+#+INGRESSO: 2017
+#+SAIDA: 2022
+#+LINHAS: hpc energia
+#+EMAIL: matheus.serpa@inf.ufrgs.br
+#+GITHUB: mserpa
+#+LATTES: http://lattes.cnpq.br/0000000000000001
+#+DESCRIPTION: Doutorado em escalonamento energeticamente eficiente para cargas irregulares em GPU. Atualmente pesquisador no LNCC.
+
+Matheus Serpa concluiu seu doutorado no GPPD em 2022, com tese sobre
+estratégias DVFS para cargas irregulares em GPU sob orientação do
+Prof. Lucas Schnorr. Durante o doutorado publicou em ERAD/RS, SBAC-PAD
+e IEEE IPDPS. Atualmente é pesquisador associado no LNCC.
+
+** Publicações
+
+#+PUB: titulo="Energy-Efficient Scheduling for Irregular GPU Workloads" venue="ERAD/RS 2024" ano=2024 tipo=conference autores="Carlos Souza, Matheus Serpa"

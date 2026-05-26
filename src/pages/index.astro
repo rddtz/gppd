@@ -1,11 +1,132 @@
 ---
-import RootLayout from '../layouts/RootLayout.astro'
+import { getCollection } from 'astro:content';
+import RootLayout from '../layouts/RootLayout.astro';
+import { SITE_TITLE_LONG, SITE_FOUNDED, LINHAS_DE_PESQUISA } from '../consts';
+
+const membros = await getCollection('pesquisadores');
+const docentes   = membros.filter(m => m.data.grupo === 'Docentes');
+const estudantes = membros.filter(m => m.data.grupo === 'Estudantes');
+const totalPubs  = membros.reduce((acc, m) => acc + (m.data.publicacoes?.length ?? 0), 0);
+
+// Publicacoes mais recentes (todas, ordenadas por ano desc)
+const todasPubs = membros
+  .flatMap(m => (m.data.publicacoes ?? []).map(p => ({ ...p, autor: m.data.nome, slug: m.id })))
+  .sort((a, b) => b.ano - a.ano)
+  .slice(0, 5);
+
+function iniciais(nome: string) {
+  const p = nome.split(/\s+/).filter(Boolean);
+  return (p[0]?.[0] ?? '') + (p[p.length - 1]?.[0] ?? '');
+}
 ---
-<RootLayout>
-	<main>
-		<h1>Base do site do GPPD</h1>
-		<p>
-			Não sei o que por aqui.
-		</p>
-	</main>
+
+<RootLayout title="Início">
+
+  <!-- Hero -->
+  <section class="gp-home-hero">
+    <span class="gp-kicker">Grupo de pesquisa · Est. {SITE_FOUNDED}</span>
+    <h1>Computação paralela e distribuída</h1>
+    <p>
+      Somos um grupo de pesquisa do Instituto de Informática da UFRGS que investiga
+      como tornar a computação mais rápida, em maior escala e mais consciente do consumo
+      energético. Nosso trabalho cobre HPC, sistemas distribuídos, análise de desempenho
+      e modelos de programação paralela.
+    </p>
+    <div class="gp-home-ctas">
+      <a href="/sobre"        class="gp-btn primary">Sobre o grupo &rarr;</a>
+      <a href="/publicacoes"  class="gp-btn">Publicações</a>
+      <a href="/pessoas"      class="gp-btn">Membros</a>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="gp-stats">
+    <div class="gp-stat">
+      <span class="gp-stat-label">Docentes</span>
+      <span class="gp-stat-value">{docentes.length}</span>
+    </div>
+    <div class="gp-stat">
+      <span class="gp-stat-label">Estudantes</span>
+      <span class="gp-stat-value">{estudantes.length}</span>
+    </div>
+    <div class="gp-stat">
+      <span class="gp-stat-label">Membros</span>
+      <span class="gp-stat-value">{membros.length}</span>
+    </div>
+    <div class="gp-stat">
+      <span class="gp-stat-label">Publicações</span>
+      <span class="gp-stat-value">{totalPubs > 0 ? `${totalPubs}+` : '—'}</span>
+    </div>
+  </div>
+
+  <!-- Linhas de pesquisa -->
+  <section class="gp-home-section">
+    <div class="gp-news-section-head">
+      <h2>Linhas de pesquisa</h2>
+      <a href="/sobre">Ver todas &rarr;</a>
+    </div>
+    <div class="gp-linhas-grid">
+      {LINHAS_DE_PESQUISA.map(l => (
+        <a href={`/linhas/${l.id}`} class="gp-linha-card">
+          <div class="gp-linha-nome">{l.nome}</div>
+          <div class="gp-linha-desc">{l.descricao}</div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Membros em destaque -->
+  <section class="gp-home-section">
+    <div class="gp-news-section-head">
+      <h2>Membros</h2>
+      <a href="/pessoas">Ver todos &rarr;</a>
+    </div>
+    <div class="gp-line-members">
+      {membros.slice(0, 6).map(m => (
+        <a href={`/pessoas/${m.id}`} class="gp-member-card">
+          {m.data.foto
+            ? <img src={m.data.foto} alt={m.data.nome} class="gp-avatar gp-avatar-photo" />
+            : <div class="gp-avatar">{iniciais(m.data.nome)}</div>
+          }
+          <div class="gp-member-card-info">
+            <h4>{m.data.nome}</h4>
+            <span>{m.data.cargo ?? m.data.role ?? ''}</span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Publicacoes recentes -->
+  {todasPubs.length > 0 && (
+    <section class="gp-home-section">
+      <div class="gp-news-section-head">
+        <h2>Publicações recentes</h2>
+        <a href="/publicacoes">Ver todas &rarr;</a>
+      </div>
+      <ol class="gp-pub-list gp-home-pubs">
+        {todasPubs.map((p, i) => (
+          <li class="gp-pub-item">
+            <div class="gp-pub-num mono">[{i + 1}]</div>
+            <div class="gp-pub-body">
+              <div class="gp-pub-title">
+                {p.doi
+                  ? <a href={`https://doi.org/${p.doi}`} target="_blank" rel="noopener">{p.titulo}</a>
+                  : p.url
+                  ? <a href={p.url} target="_blank" rel="noopener">{p.titulo}</a>
+                  : p.titulo
+                }
+              </div>
+              <div class="gp-pub-venue">
+                <em>{p.venue}</em>{' · '}
+                <span class="mono">{p.ano}</span>
+              </div>
+              <div class="gp-pub-authors">{p.autores.join(' · ')}</div>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  )}
+
 </RootLayout>

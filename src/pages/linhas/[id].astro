@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import RootLayout from '../../layouts/RootLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { LINHAS_DE_PESQUISA } from '../../consts';
+
+export async function getStaticPaths() {
+  return LINHAS_DE_PESQUISA.map(l => ({
+    params: { id: l.id },
+    props: l,
+  }));
+}
+
+const { id, nome, descricao } = Astro.props;
+
+const todos = await getCollection('pesquisadores');
+const membros = todos.filter(m => (m.data.linhas ?? []).includes(id));
+
+function iniciais(nome: string) {
+  const p = nome.split(/\s+/).filter(Boolean);
+  return (p[0]?.[0] ?? '') + (p[p.length - 1]?.[0] ?? '');
+}
+---
+
+<RootLayout title={nome}>
+  <Breadcrumbs trilha={[
+    { label: 'Início', href: '/' },
+    { label: nome },
+  ]} />
+
+  <header class="gp-page-head">
+    <span class="gp-kicker">Linha de pesquisa</span>
+    <h1>{nome}</h1>
+    <p class="gp-lede">{descricao}</p>
+  </header>
+
+  <section>
+    <h2 style="font-size:1.1em;border-bottom:1px solid var(--gp-rule);padding-bottom:6px;margin-bottom:16px;">
+      Membros ({membros.length})
+    </h2>
+
+    {membros.length === 0 ? (
+      <p class="gp-mute">Nenhum membro cadastrado nesta linha ainda.</p>
+    ) : (
+      <div class="gp-line-members">
+        {membros.map(m => {
+          const cargo = m.data.cargo ?? m.data.role ?? '';
+          return (
+            <a href={`/pessoas/${m.id}`} class="gp-member-card">
+              {m.data.foto
+                ? <img src={m.data.foto} alt={m.data.nome} class="gp-avatar gp-avatar-photo" />
+                : <div class="gp-avatar">{iniciais(m.data.nome)}</div>
+              }
+              <div class="gp-member-card-info">
+                <h4>{m.data.nome}</h4>
+                <span>{cargo}</span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    )}
+  </section>
+</RootLayout>

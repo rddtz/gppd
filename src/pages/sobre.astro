@@ -1,10 +1,72 @@
 ---
-import RootLayout from '../layouts/RootLayout.astro'
+import RootLayout from '../layouts/RootLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE_TITLE_LONG, SITE_FOUNDED, LINHAS_DE_PESQUISA } from '../consts';
 ---
 
-<RootLayout>
-	<main>
-		<h1>Sobre</h1>
-		<p>Sobre e talz.</p>
-	</main>
+<RootLayout title="Sobre o grupo">
+  <Breadcrumbs trilha={[
+    { label: 'Início', href: '/' },
+    { label: 'Sobre' },
+  ]} />
+
+  <header class="gp-page-head">
+    <span class="gp-kicker">Sobre</span>
+    <h1>{SITE_TITLE_LONG}</h1>
+    <p class="gp-lede">
+      Grupo de pesquisa do Instituto de Informática da UFRGS, fundado em {SITE_FOUNDED}.
+    </p>
+  </header>
+
+  <div style="max-width:72ch;">
+    <section class="gp-section">
+      <div class="gp-section-row"><h2>Missão</h2></div>
+      <div class="gp-section-body">
+        <p>
+          O GPPD investiga como tornar a computação mais rápida, em maior escala e mais consciente
+          do consumo energético. Nosso trabalho cobre HPC, sistemas distribuídos, análise de
+          desempenho e modelos de programação paralela &mdash; do algoritmo ao silício.
+        </p>
+        <p>
+          Estamos vinculados ao{' '}
+          <a href="https://www.inf.ufrgs.br/" target="_blank" rel="noopener">Instituto de Informática</a>
+          {' '}da Universidade Federal do Rio Grande do Sul (UFRGS).
+          O site antigo do grupo:&nbsp;
+          <a href="https://www.inf.ufrgs.br/gppd/site/" target="_blank" rel="noopener">
+            inf.ufrgs.br/gppd &#8599;
+          </a>.
+        </p>
+      </div>
+    </section>
+
+    <section class="gp-section">
+      <div class="gp-section-row"><h2>Linhas de pesquisa</h2></div>
+      <div class="gp-section-body">
+        <ul>
+          {LINHAS_DE_PESQUISA.map(l => (
+            <li style="margin-bottom:8px;">
+              <a href={`/linhas/${l.id}`}><strong>{l.nome}</strong></a>
+              {' — '}{l.descricao}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="gp-section">
+      <div class="gp-section-row"><h2>Como contribuir com este wiki</h2></div>
+      <div class="gp-section-body">
+        <p>
+          Cada membro do grupo pode criar sua própria página submetendo um único arquivo
+          <code>.md</code> ou <code>.org</code> na pasta <code>src/content/pesquisadores/</code>.
+        </p>
+        <p>
+          O arquivo deve conter os campos de frontmatter:
+          <code>nome</code>, <code>cargo</code>, <code>grupo</code>, <code>linhas</code> e <code>ingresso</code>.
+          Publicações adicionadas em <code>publicacoes:</code> aparecerão automaticamente na{' '}
+          <a href="/publicacoes">página de publicações</a>.
+        </p>
+      </div>
+    </section>
+  </div>
 </RootLayout>
